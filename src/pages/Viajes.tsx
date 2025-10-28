@@ -292,7 +292,11 @@ export default function Viajes() {
                   <td style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                   
   <button
-    onClick={() => window.open(`/DetalleViaje?id=${v.id}`, "_blank")}
+    onClick={() =>   window.open(
+    `/DetalleViaje?id=${v.id}`,
+    "VentanaDetalle",
+    "width=1000,height=500,left=100,top=100,resizable=yes,scrollbars=yes"
+  )}
     style={{
       background: "#1E88E5",
       color: "white",
