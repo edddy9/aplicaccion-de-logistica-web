@@ -3,9 +3,10 @@ import Dashboard from "./pages/Dashboard";
 import Usuarios from "./pages/Usuarios";
 import Viajes from "./pages/Viajes";
 import Reportes from "./pages/Reportes";
-import Login from "./pages/login";
+import Login from "./pages/Login";
+import DetalleViaje from "./pages/DetalleViaje";
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
       <Routes>
@@ -17,9 +18,14 @@ export default function App() {
         <Route path="/viajes" element={<Viajes />} />
         <Route path="/reportes" element={<Reportes />} />
 
-        {/* Login */}
+        {/* Página de Login */}
         <Route path="/login" element={<Login />} />
+
+        {/* Página de detalles del viaje */}
+        <Route path="/DetalleViaje" element={<DetalleViaje />} />
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;

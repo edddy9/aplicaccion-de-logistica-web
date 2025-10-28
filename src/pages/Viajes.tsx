@@ -7,10 +7,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
-import { FaTrash, FaMapMarkerAlt, FaUser, FaFileExcel } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUser, FaFileExcel } from "react-icons/fa";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Swal from "sweetalert2";
+
 
 /* ===== Tipos ===== */
 type TViaje = {
@@ -277,28 +278,57 @@ export default function Viajes() {
                 <th>Destino</th>
                 <th>Usuario</th>
                 <th>Fecha</th>
-                <th>Operador</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filtrados.map((v) => (
                 <tr key={v.id}>
-                  <td>{v.empresa}</td>
-                  <td>📍 {v.origen}</td>
-                  <td>📍 {v.destino}</td>
-                  <td>{nombreUsuario(v.userId)}</td>
-                  <td>{v.fecha}</td>
-                  <td>{v.operador}</td>
-                  <td>
-                    <button
-                      onClick={() => eliminarViaje(v.id)}
-                      style={styles.btnDelete}
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
+                  <td style={styles.td}>{v.empresa}</td>
+                  <td style={styles.td}>📍 {v.destino}</td>
+                  <td style={styles.td}>📍 {v.origen}</td>
+                  <td style={styles.td}>{nombreUsuario(v.userId)}</td>
+                  <td style={styles.td}>{v.creadoEn.toDate().toLocaleString("es-MX")}</td>
+                  <td style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+                  
+  <button
+    onClick={() => window.open(`/DetalleViaje?id=${v.id}`, "_blank")}
+    style={{
+      background: "#1E88E5",
+      color: "white",
+      border: "none",
+      padding: "6px 10px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontSize: "14px",
+      display: "flex",
+      alignItems: "center",
+      gap: "5px",
+    }}
+  >
+    <FaMapMarkerAlt /> Detalles
+  </button>
+
+  <button
+    onClick={() => eliminarViaje(v.id)}
+   style={{
+      background: "#e51e1eff",
+      color: "white",
+      border: "none",
+      padding: "1px 10px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontSize: "14px",
+      display: "flex",
+      alignItems: "center",
+      gap: "1px",
+    }}
+  >
+    <FaMapMarkerAlt />Eliminar
+    </button>
+</td>
+
+                  </tr>
               ))}
             </tbody>
           </table>
@@ -343,45 +373,54 @@ const styles: Record<string, any> = {
     border: "1px solid #ccc",
     background: "#f9fbfd",
   },
- btnExport: {
-  backgroundColor: "#43A047",
-  color: "white",
-  border: "none",
-  padding: "12px 20px",
-  borderRadius: 10,
-  cursor: "pointer",
-  fontWeight: 600,
-  fontSize: 15,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  width: 180,
-  boxShadow: "0 4px 10px rgba(67, 160, 71, 0.4)", // sombra verde elegante
-  transition: "all 0.25s ease-in-out",             // animación suave
-},
-
-
-  tableWrap: { overflowX: "auto" },
+  btnExport: {
+    backgroundColor: "#43A047",
+    color: "white",
+    border: "none",
+    padding: "12px 20px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: 15,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: 180,
+    boxShadow: "0 4px 10px rgba(67, 160, 71, 0.4)",
+    transition: "all 0.25s ease-in-out",
+  },
+  tableWrap: { overflowX: "auto", 
+     width: "100%",
+    
+    
+  },
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    background: "#fff",
+    background: "#f8f8f8ff",
     borderRadius: 12,
     overflow: "hidden",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    boxShadow: "0 10px 10px rgba(0,0,0,0.05)",
+   
+    
   },
-  th: {
-    background: "#0b2d69",
-    color: "#fff",
-    padding: "10px",
-    fontWeight: 600,
-    textAlign: "center",
-  },
-  td: {
-    padding: "10px",
-    borderBottom: "1px solid #eef2f7",
-    textAlign: "center",
+ td: {
+  backgroundColor: "#ffffffff",
+  textAlign: "center",
+  verticalAlign: "middle",
+  color: "#333",
+ 
+ 
+},
+
+  btnMap: {
+    background: "transparent",
+    border: "none",
+    color: "#1e88e5",
+    cursor: "pointer",
+    fontSize: 18,
+    transition: "0.2s",
   },
   btnDelete: {
     background: "transparent",
