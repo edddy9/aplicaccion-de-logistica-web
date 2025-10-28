@@ -1,0 +1,61 @@
+/* Estilos globales claros y limpios */
+
+:root {
+  --primary-color: #007bff;
+  --background-color: #f4f6fa;
+  --card-color: #ffffff;
+  --text-color: #222;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+/* Centrar el contenido de login */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  background-color: var(--card-color);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+h1 {
+  color: var(--text-color);
+  margin-bottom: 25px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 1x;
+  width: 70%;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
