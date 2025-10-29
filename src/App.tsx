@@ -5,24 +5,60 @@ import Viajes from "./pages/Viajes";
 import Reportes from "./pages/Reportes";
 import Login from "./pages/Login";
 import DetalleViaje from "./pages/DetalleViaje";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Página principal (home o dashboard) */}
-        <Route path="/" element={<Dashboard />} />
-
-        {/* Páginas del menú lateral */}
-        <Route path="/usuarios" element={<Usuarios />} />
-        <Route path="/viajes" element={<Viajes />} />
-        <Route path="/reportes" element={<Reportes />} />
-
-        {/* Página de Login */}
+        {/* Página de inicio de sesión (pública) */}
         <Route path="/login" element={<Login />} />
 
-        {/* Página de detalles del viaje */}
-        <Route path="/DetalleViaje" element={<DetalleViaje />} />
+        {/* Rutas protegidas: requieren que el usuario esté autenticado */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/usuarios"
+          element={
+            <ProtectedRoute>
+              <Usuarios />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/viajes"
+          element={
+            <ProtectedRoute>
+              <Viajes />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reportes"
+          element={
+            <ProtectedRoute>
+              <Reportes />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/DetalleViaje"
+          element={
+            <ProtectedRoute>
+              <DetalleViaje />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
