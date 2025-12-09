@@ -53,14 +53,8 @@ const COLORS = [
 
 // Lista oficial de tamaños
 const TAMANIOS = [
-  "1 tonelada",
   "1 1/2 toneladas",
-  "2 toneladas",
-  "3 toneladas",
   "3 1/2 toneladas",
-  "4 toneladas",
-  "5 toneladas",
-  "6 toneladas",
   "Trailer 48 pies",
   "Trailer 53 pies",
 ];
