@@ -31,6 +31,7 @@ type TGasto = {
   userId?: string;
   categoria?: string;
   descripcion?: string;
+  tamaño?: string; // AGREGADO
 };
 
 type TUsuario = {
@@ -50,21 +51,36 @@ const COLORS = [
   "#5E35B1",
 ];
 
+// Lista oficial de tamaños
+const TAMANIOS = [
+  "1 tonelada",
+  "1 1/2 toneladas",
+  "2 toneladas",
+  "3 toneladas",
+  "3 1/2 toneladas",
+  "4 toneladas",
+  "5 toneladas",
+  "6 toneladas",
+  "Trailer 48 pies",
+  "Trailer 53 pies",
+];
+
 export default function Reportes() {
-  // ====== Filtros ======
+  // ================= Filtros =================
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [fEmpresa, setFEmpresa] = useState("");
   const [fUsuario, setFUsuario] = useState("");
   const [fCategoria, setFCategoria] = useState("");
+  const [ftamaño, setTamaño] = useState("");
   const [busqueda, setBusqueda] = useState("");
 
-  // ====== Datos ======
+  // ================= Datos =================
   const [gastosRaw, setGastosRaw] = useState<TGasto[]>([]);
   const [usuarios, setUsuarios] = useState<TUsuario[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ====== Carga de datos ======
+  // ================= Cargar datos =================
   const fetchAll = async () => {
     setLoading(true);
 
@@ -96,6 +112,7 @@ export default function Reportes() {
     if (fEmpresa) wheres.push(where("empresa", "==", fEmpresa));
     if (fUsuario) wheres.push(where("userId", "==", fUsuario));
     if (fCategoria) wheres.push(where("categoria", "==", fCategoria));
+    if (ftamaño) wheres.push(where("tamaño", "==", ftamaño));
 
     const qRef = query(gastosRef, ...wheres);
     const gastosSnap = await getDocs(qRef);
@@ -109,6 +126,7 @@ export default function Reportes() {
         userId: g.userId || "",
         categoria: g.categoria || "Otros",
         descripcion: g.descripcion || "",
+        tamaño: g.tamaño || "",
       };
     });
 
@@ -118,15 +136,15 @@ export default function Reportes() {
 
   useEffect(() => {
     fetchAll();
-  }, [fechaInicio, fechaFin, fEmpresa, fUsuario, fCategoria]);
+  }, [fechaInicio, fechaFin, fEmpresa, fUsuario, fCategoria, ftamaño]);
 
-  // ====== Diccionarios ======
+  // ================= Helpers =================
   const nombreUsuario = (uid?: string) => {
     const u = usuarios.find((x) => x.uid === uid);
     return u ? `${u.nombre} ${u.apellido}`.trim() : "—";
   };
 
-  // ====== KPIs ======
+  // ================= KPIs =================
   const kpis = useMemo(() => {
     const total = gastosRaw.reduce((s, g) => s + (g.monto || 0), 0);
     const count = gastosRaw.length;
@@ -135,8 +153,9 @@ export default function Reportes() {
     const porUsuario: Record<string, number> = {};
     gastosRaw.forEach((g) => {
       if (!g.userId) return;
-      porUsuario[g.userId] = (porUsuario[g.userId] || 0) + (g.monto || 0);
+      porUsuario[g.userId] = (porUsuario[g.userId] || 0) + g.monto;
     });
+
     const top = Object.entries(porUsuario)
       .map(([uid, tot]) => ({ uid, tot }))
       .sort((a, b) => b.tot - a.tot)[0];
@@ -149,7 +168,7 @@ export default function Reportes() {
     };
   }, [gastosRaw, usuarios]);
 
-  // ====== Gráficos ======
+  // ================= Gráficos =================
   const chartMensual = useMemo(() => {
     const porMes: Record<string, number> = {};
     gastosRaw.forEach((g) => {
@@ -158,7 +177,7 @@ export default function Reportes() {
         2,
         "0"
       )}`;
-      porMes[clave] = (porMes[clave] || 0) + (g.monto || 0);
+      porMes[clave] = (porMes[clave] || 0) + g.monto;
     });
     return Object.entries(porMes)
       .sort(([a], [b]) => (a > b ? 1 : -1))
@@ -168,8 +187,8 @@ export default function Reportes() {
   const chartEmpresa = useMemo(() => {
     const porEmpresa: Record<string, number> = {};
     gastosRaw.forEach((g) => {
-       porEmpresa[g.empresa || "Sin empresa"] =
-    (porEmpresa[g.empresa || "Sin empresa"] || 0) + g.monto;
+      porEmpresa[g.empresa || "Sin empresa"] =
+        (porEmpresa[g.empresa || "Sin empresa"] || 0) + g.monto;
     });
     return Object.entries(porEmpresa).map(([empresa, total]) => ({
       empresa,
@@ -180,8 +199,8 @@ export default function Reportes() {
   const chartCategoriaPie = useMemo(() => {
     const porCategoria: Record<string, number> = {};
     gastosRaw.forEach((g) => {
-      porCategoria[g.categoria || "Sin categoría"] =
-        (porCategoria[g.categoria || "Sin categoría"] || 0) + g.monto;
+      porCategoria[g.categoria || "Otros"] =
+        (porCategoria[g.categoria || "Otros"] || 0) + g.monto;
     });
     return Object.entries(porCategoria).map(([categoria, total]) => ({
       categoria,
@@ -196,12 +215,15 @@ export default function Reportes() {
       porUsuario[g.userId] = (porUsuario[g.userId] || 0) + g.monto;
     });
     return Object.entries(porUsuario)
-      .map(([uid, total]) => ({ usuario: nombreUsuario(uid), total }))
+      .map(([uid, total]) => ({
+        usuario: nombreUsuario(uid),
+        total,
+      }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 10);
   }, [gastosRaw, usuarios]);
 
-  // ====== Tabla ======
+  // ================= Tabla =================
   const tabla = useMemo(() => {
     return gastosRaw
       .filter((g) =>
@@ -212,7 +234,8 @@ export default function Reportes() {
       .map((g) => {
         const f = g.creadoEn?.toDate ? g.creadoEn.toDate() : new Date();
         return {
-          fecha: f.toLocaleString("es-MX"),
+          fecha: f,
+          fechaTxt: f.toLocaleString("es-MX"),
           empresa: g.empresa,
           usuario: nombreUsuario(g.userId),
           categoria: g.categoria,
@@ -220,15 +243,14 @@ export default function Reportes() {
           monto: g.monto,
         };
       })
-      .sort((a, b) => (a.fecha > b.fecha ? -1 : 1));
+      .sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
   }, [gastosRaw, usuarios, busqueda]);
 
-  // ====== Exportar Excel ======
+  // ================= Exportar Excel =================
   const exportExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Reporte de Gastos");
 
-    // Header principal
     sheet.mergeCells("A1:F1");
     const titleCell = sheet.getCell("A1");
     titleCell.value = "Reporte de Gastos - G-Logística";
@@ -236,7 +258,6 @@ export default function Reportes() {
     titleCell.alignment = { vertical: "middle", horizontal: "center" };
     sheet.addRow([]);
 
-    // Encabezados
     const header = [
       "Fecha",
       "Empresa",
@@ -262,10 +283,9 @@ export default function Reportes() {
       };
     });
 
-    // Filas
     tabla.forEach((r) => {
       const row = sheet.addRow([
-        r.fecha,
+        r.fechaTxt,
         r.empresa,
         r.usuario,
         r.categoria,
@@ -283,13 +303,11 @@ export default function Reportes() {
       });
     });
 
-    // Total
     const totalRow = sheet.addRow(["", "", "", "", "TOTAL:", kpis.total]);
     totalRow.getCell(5).font = { bold: true };
     totalRow.getCell(6).font = { bold: true, color: { argb: "1E88E5" } };
     totalRow.getCell(6).numFmt = '"$"#,##0.00';
 
-    // Estilos
     sheet.columns = [
       { width: 20 },
       { width: 25 },
@@ -298,7 +316,7 @@ export default function Reportes() {
       { width: 40 },
       { width: 15 },
     ];
-    sheet.views = [{ state: "frozen", ySplit: 3 }];
+    sheet.views = [{ state: "frozen", ySplit: 2 }];
 
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(
@@ -309,9 +327,14 @@ export default function Reportes() {
     );
   };
 
-  // ====== Listas dinámicas ======
-  const empresasOpt = Array.from(new Set(gastosRaw.map((g) => g.empresa)));
-  const categoriasOpt = Array.from(new Set(gastosRaw.map((g) => g.categoria)));
+  // ================= Listas dinámicas =================
+  const empresasOpt = Array.from(
+    new Set(gastosRaw.map((g) => g.empresa || "Sin empresa"))
+  );
+
+  const categoriasOpt = Array.from(
+    new Set(gastosRaw.map((g) => g.categoria || "Sin categoría"))
+  );
 
   if (loading)
     return (
@@ -324,7 +347,7 @@ export default function Reportes() {
     <div style={styles.wrap}>
       <Sidebar />
       <main style={styles.main}>
-        {/* ===== Filtros ===== */}
+        {/* ================= Filtros ================= */}
         <section style={styles.filtersCard}>
           <h2 style={styles.filtersTitle}>Filtros</h2>
           <div style={styles.filtersGrid}>
@@ -337,6 +360,7 @@ export default function Reportes() {
                 style={styles.input}
               />
             </div>
+
             <div style={styles.fItem}>
               <label>Hasta</label>
               <input
@@ -346,6 +370,7 @@ export default function Reportes() {
                 style={styles.input}
               />
             </div>
+
             <div style={styles.fItem}>
               <label>Empresa</label>
               <select
@@ -361,6 +386,7 @@ export default function Reportes() {
                 ))}
               </select>
             </div>
+
             <div style={styles.fItem}>
               <label>Usuario</label>
               <select
@@ -376,6 +402,7 @@ export default function Reportes() {
                 ))}
               </select>
             </div>
+
             <div style={styles.fItem}>
               <label>Categoría</label>
               <select
@@ -391,6 +418,24 @@ export default function Reportes() {
                 ))}
               </select>
             </div>
+
+            {/* === FILTRO DE TAMAÑO — AGREGADO === */}
+            <div style={styles.fItem}>
+              <label>Tamaño del vehículo</label>
+              <select
+                value={ftamaño}
+                onChange={(e) => setTamaño(e.target.value)}
+                style={styles.input}
+              >
+                <option value="">Todos</option>
+                {TAMANIOS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div style={styles.fItem}>
               <label>Buscar descripción</label>
               <input
@@ -401,6 +446,7 @@ export default function Reportes() {
                 style={styles.input}
               />
             </div>
+
             <div style={styles.exportContainer}>
               <button onClick={exportExcel} style={styles.btnExport}>
                 📊 Exportar a Excel
@@ -409,7 +455,7 @@ export default function Reportes() {
           </div>
         </section>
 
-        {/* KPIs */}
+        {/* ================= KPIs ================= */}
         <div style={styles.gridKPI}>
           <Kpi title="Gasto total" value={`$${kpis.total.toFixed(2)}`} />
           <Kpi title="N° de gastos" value={kpis.count.toString()} />
@@ -424,7 +470,7 @@ export default function Reportes() {
           />
         </div>
 
-        {/* Gráficos */}
+        {/* ================= Gráficos ================= */}
         <div style={styles.gridCharts}>
           <Card title="Gasto total por mes">
             <ResponsiveContainer width="100%" height={280}>
@@ -485,7 +531,7 @@ export default function Reportes() {
           </Card>
         </div>
 
-        {/* Tabla */}
+        {/* ================= Tabla ================= */}
         <Card title="Detalle de gastos (filtrado)">
           <div style={{ overflowX: "auto" }}>
             <table style={styles.table}>
@@ -502,7 +548,7 @@ export default function Reportes() {
               <tbody>
                 {tabla.map((r, i) => (
                   <tr key={i}>
-                    <td style={styles.td}>{r.fecha}</td>
+                    <td style={styles.td}>{r.fechaTxt}</td>
                     <td style={styles.td}>{r.empresa}</td>
                     <td style={styles.td}>{r.usuario}</td>
                     <td style={styles.td}>{r.categoria}</td>
@@ -519,7 +565,8 @@ export default function Reportes() {
   );
 }
 
-/* === Subcomponentes === */
+/* ================= Subcomponentes ================= */
+
 function Card({ title, children }: any) {
   return (
     <section style={styles.card}>
@@ -538,7 +585,7 @@ function Kpi({ title, value }: { title: string; value: string }) {
   );
 }
 
-/* === Estilos === */
+/* ================= Estilos ================= */
 const styles: Record<string, any> = {
   wrap: { display: "flex", minHeight: "100vh", background: "#f3f6fb" },
   main: { marginLeft: 220, width: "100%", padding: "28px" },
