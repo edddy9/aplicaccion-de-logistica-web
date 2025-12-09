@@ -236,6 +236,7 @@ export default function Reportes() {
           categoria: g.categoria,
           descripcion: g.descripcion,
           monto: g.monto,
+          tamaño: g.tamaño,
         };
       })
       .sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
@@ -258,7 +259,7 @@ export default function Reportes() {
       "Empresa",
       "Usuario",
       "Categoría",
-      "Descripción",
+      "tamaño",
       "Monto",
     ];
     const headerRow = sheet.addRow(header);
@@ -284,7 +285,7 @@ export default function Reportes() {
         r.empresa,
         r.usuario,
         r.categoria,
-        r.descripcion,
+        r.tamaño,
         r.monto,
       ]);
       row.getCell(6).numFmt = '"$"#,##0.00;[Red]\\-"$"#,##0.00';
