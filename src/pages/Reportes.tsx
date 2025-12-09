@@ -31,7 +31,7 @@ type TGasto = {
   userId?: string;
   categoria?: string;
   descripcion?: string;
-  tamaño?: string; // AGREGADO
+  tamaño?: string;
 };
 
 type TUsuario = {
@@ -51,14 +51,6 @@ const COLORS = [
   "#5E35B1",
 ];
 
-// Lista oficial de tamaños
-const TAMANIOS = [
-  "1.5 tons",
-  "3.5 tons",
-  "Trailer 48 ft",
-  "Trailer 53 ft",
-];
-
 export default function Reportes() {
   // ================= Filtros =================
   const [fechaInicio, setFechaInicio] = useState("");
@@ -72,6 +64,7 @@ export default function Reportes() {
   // ================= Datos =================
   const [gastosRaw, setGastosRaw] = useState<TGasto[]>([]);
   const [usuarios, setUsuarios] = useState<TUsuario[]>([]);
+  const [tamanosOpt, setTamanosOpt] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   // ================= Cargar datos =================
@@ -125,6 +118,14 @@ export default function Reportes() {
     });
 
     setGastosRaw(gastos);
+
+    // ⭐ Crear lista única de tamaños desde BD
+    const listaTamanos = Array.from(
+      new Set(gastos.map((g) => g.tamaño || ""))
+    ).filter((t) => t !== "");
+
+    setTamanosOpt(listaTamanos);
+
     setLoading(false);
   };
 
@@ -413,7 +414,7 @@ export default function Reportes() {
               </select>
             </div>
 
-            {/* === FILTRO DE TAMAÑO — AGREGADO === */}
+            {/* === FILTRO DE TAMAÑO (DINÁMICO DESDE BD) === */}
             <div style={styles.fItem}>
               <label>Tamaño del vehículo</label>
               <select
@@ -422,7 +423,7 @@ export default function Reportes() {
                 style={styles.input}
               >
                 <option value="">Todos</option>
-                {TAMANIOS.map((t) => (
+                {tamanosOpt.map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
