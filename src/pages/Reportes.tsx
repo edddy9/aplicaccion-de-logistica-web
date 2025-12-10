@@ -445,17 +445,7 @@ export default function Reportes() {
               </select>
             </div>
 
-            <div style={styles.fItem}>
-              <label>Buscar descripción</label>
-              <input
-                type="text"
-                placeholder="Buscar..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                style={styles.input}
-              />
-            </div>
-
+           
             <div style={styles.exportContainer}>
               <button onClick={exportExcel} style={styles.btnExport}>
                 📊 Exportar a Excel
