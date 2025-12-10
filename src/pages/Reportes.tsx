@@ -59,7 +59,6 @@ export default function Reportes() {
   const [fUsuario, setFUsuario] = useState("");
   const [fCategoria, setFCategoria] = useState("");
   const [ftamaño, setTamaño] = useState("");
-  const [busqueda, setBusqueda] = useState("");
 
   // ================= Datos =================
   const [gastosRaw, setGastosRaw] = useState<TGasto[]>([]);
@@ -112,14 +111,13 @@ export default function Reportes() {
         empresa: g.empresa || "Sin empresa",
         userId: g.userId || "",
         categoria: g.categoria || "Otros",
-        descripcion: g.descripcion || "",
         tamaño: g.tamaño || "",
       };
     });
 
     setGastosRaw(gastos);
 
-    // ⭐ Crear lista única de tamaños desde BD
+    // Crear lista de tamaños únicos
     const listaTamanos = Array.from(
       new Set(gastos.map((g) => g.tamaño || ""))
     ).filter((t) => t !== "");
@@ -221,11 +219,6 @@ export default function Reportes() {
   // ================= Tabla =================
   const tabla = useMemo(() => {
     return gastosRaw
-      .filter((g) =>
-        busqueda
-          ? g.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
-          : true
-      )
       .map((g) => {
         const f = g.creadoEn?.toDate ? g.creadoEn.toDate() : new Date();
         return {
@@ -234,47 +227,33 @@ export default function Reportes() {
           empresa: g.empresa,
           usuario: nombreUsuario(g.userId),
           categoria: g.categoria,
-          descripcion: g.descripcion,
-          monto: g.monto,
           tamaño: g.tamaño,
+          monto: g.monto,
         };
       })
       .sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
-  }, [gastosRaw, usuarios, busqueda]);
+  }, [gastosRaw, usuarios]);
 
   // ================= Exportar Excel =================
   const exportExcel = async () => {
-
-     // rango de fechas en el título
     const f1 = fechaInicio ? new Date(fechaInicio).toLocaleDateString("es-MX") : "";
     const f2 = fechaFin ? new Date(fechaFin).toLocaleDateString("es-MX") : "";
 
     let rango = "";
-
-    if (f1 && f2) {
-      rango = ` (${f1} - ${f2})`;
-    }
+    if (f1 && f2) rango = ` (${f1} - ${f2})`;
 
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("Reporte de Gastos"+ rango);
+    const sheet = workbook.addWorksheet("Reporte de Gastos" + rango);
 
     sheet.mergeCells("A1:F1");
     const titleCell = sheet.getCell("A1");
-    
- 
+
     titleCell.value = "Reporte de Gastos" + rango;
     titleCell.font = { size: 16, bold: true, color: { argb: "1E88E5" } };
     titleCell.alignment = { vertical: "middle", horizontal: "center" };
     sheet.addRow([]);
 
-    const header = [
-      "Fecha",
-      "Empresa",
-      "Usuario",
-      "Categoría",
-      "tamaño",
-      "Monto",
-    ];
+    const header = ["Fecha", "Empresa", "Usuario", "Categoría", "Tamaño", "Monto"];
     const headerRow = sheet.addRow(header);
     headerRow.eachCell((cell) => {
       cell.font = { bold: true, color: { argb: "FFFFFF" } };
@@ -322,7 +301,7 @@ export default function Reportes() {
       { width: 25 },
       { width: 25 },
       { width: 20 },
-      { width: 40 },
+      { width: 25 },
       { width: 15 },
     ];
     sheet.views = [{ state: "frozen", ySplit: 2 }];
@@ -336,7 +315,7 @@ export default function Reportes() {
     );
   };
 
-  // ================= Listas dinámicas =================
+  // ================= Opciones dinámicas =================
   const empresasOpt = Array.from(
     new Set(gastosRaw.map((g) => g.empresa || "Sin empresa"))
   );
@@ -428,7 +407,6 @@ export default function Reportes() {
               </select>
             </div>
 
-            {/* === FILTRO DE TAMAÑO (DINÁMICO DESDE BD) === */}
             <div style={styles.fItem}>
               <label>Tamaño del vehículo</label>
               <select
@@ -445,7 +423,6 @@ export default function Reportes() {
               </select>
             </div>
 
-           
             <div style={styles.exportContainer}>
               <button onClick={exportExcel} style={styles.btnExport}>
                 📊 Exportar a Excel
@@ -540,7 +517,7 @@ export default function Reportes() {
                   <th style={styles.th}>Empresa</th>
                   <th style={styles.th}>Usuario</th>
                   <th style={styles.th}>Categoría</th>
-                  <th style={styles.th}>Descripción</th>
+                  <th style={styles.th}>Tamaño</th>
                   <th style={styles.th}>Monto</th>
                 </tr>
               </thead>
@@ -551,7 +528,7 @@ export default function Reportes() {
                     <td style={styles.td}>{r.empresa}</td>
                     <td style={styles.td}>{r.usuario}</td>
                     <td style={styles.td}>{r.categoria}</td>
-                    <td style={styles.td}>{r.descripcion}</td>
+                    <td style={styles.td}>{r.tamaño}</td>
                     <td style={styles.td}>${r.monto.toFixed(2)}</td>
                   </tr>
                 ))}
