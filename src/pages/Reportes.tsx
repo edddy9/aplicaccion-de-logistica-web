@@ -249,7 +249,18 @@ export default function Reportes() {
 
     sheet.mergeCells("A1:F1");
     const titleCell = sheet.getCell("A1");
-    titleCell.value = "Reporte de Gastos" + fechaInicio && fechaFin;
+    
+  // rango de fechas en el título
+    const f1 = fechaInicio ? new Date(fechaInicio).toLocaleDateString("es-MX") : "";
+    const f2 = fechaFin ? new Date(fechaFin).toLocaleDateString("es-MX") : "";
+
+    let rango = "";
+
+    if (f1 && f2) {
+      rango = ` (${f1} - ${f2})`;
+    }
+
+    titleCell.value = "Reporte de Gastos" + rango;
     titleCell.font = { size: 16, bold: true, color: { argb: "1E88E5" } };
     titleCell.alignment = { vertical: "middle", horizontal: "center" };
     sheet.addRow([]);
