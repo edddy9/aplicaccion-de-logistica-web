@@ -249,7 +249,7 @@ export default function Reportes() {
 
     sheet.mergeCells("A1:F1");
     const titleCell = sheet.getCell("A1");
-    titleCell.value = "Reporte de Gastos - G-Logística";
+    titleCell.value = "Reporte de Gastos" + fechaInicio && fechaFin;
     titleCell.font = { size: 16, bold: true, color: { argb: "1E88E5" } };
     titleCell.alignment = { vertical: "middle", horizontal: "center" };
     sheet.addRow([]);
