@@ -38,7 +38,7 @@ export default function Sidebar() {
         <SidebarLink
           to="/"
           icon={<Home size={20} />}
-          label="Salpicadero"
+          label="Inicio"
           collapsed={collapsed}
         />
         <SidebarLink
