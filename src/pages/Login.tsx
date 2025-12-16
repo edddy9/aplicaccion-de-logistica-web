@@ -11,83 +11,99 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/"); // redirige al dashboard
-    } catch (error: any) {
+      navigate("/");
+    } catch {
       setError("Correo o contraseña incorrectos.");
-      console.error(error);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h1>LOGIN</h1>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>
-          Entrar
-        </button>
-       
-        
-      </form>
-      {error && <p style={styles.error}>{error}</p>}
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <h1 style={styles.title}>Control Logístico</h1>
+        <p style={styles.subtitle}>Inicia sesión para continuar</p>
+
+        <form onSubmit={handleLogin} style={styles.form}>
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={styles.input}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={styles.input}
+            required
+          />
+
+          <button type="submit" style={styles.button}>
+            Entrar
+          </button>
+        </form>
+
+        {error && <p style={styles.error}>{error}</p>}
+      </div>
     </div>
   );
 }
-
 const styles = {
-  container: {
-    backgroundColor: "#ffd392ff",
-    textAlign: "center" as const,
-    marginTop: "80px",
+  page: {
+    minHeight: "100vh",
     display: "flex",
-    flexDirection: "column" as const,
     alignItems: "center",
-    padding: "50px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    width: "300px",
-    marginLeft: "auto",
-    marginRight: "auto",
+    justifyContent: "center",
+    background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+  },
+  container: {
+    backgroundColor: "#ffffff",
+    padding: "40px",
+    borderRadius: "12px",
+    width: "320px",
+    textAlign: "center" as const,
+    boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+  },
+  title: {
+    marginBottom: "5px",
+    color: "#1e3c72",
+  },
+  subtitle: {
+    marginBottom: "25px",
+    color: "#666",
+    fontSize: "14px",
   },
   form: {
     display: "flex",
     flexDirection: "column" as const,
-    alignItems: "center",
-    gap: "10px",
-    marginTop: "20px",
+    gap: "15px",
   },
   input: {
-    width: "250px",
-    padding: "10px",
-    borderRadius: "6px",
+    padding: "12px",
+    borderRadius: "8px",
     border: "1px solid #ccc",
+    fontSize: "14px",
+    outline: "none",
   },
   button: {
-    width: "250px",
-    padding: "10px",
-    borderRadius: "6px",
-    backgroundColor: "#007bff",
-    color: "white",
+    padding: "12px",
+    borderRadius: "8px",
+    backgroundColor: "#1e3c72",
+    color: "#fff",
     border: "none",
+    fontSize: "15px",
     cursor: "pointer",
+    transition: "background-color 0.3s",
   },
   error: {
-    color: "red",
     marginTop: "15px",
+    color: "#d32f2f",
+    fontSize: "14px",
   },
 };
